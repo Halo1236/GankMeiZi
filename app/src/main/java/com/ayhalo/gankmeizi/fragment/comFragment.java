@@ -39,7 +39,8 @@ import java.util.List;
 
 public class comFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static final String baseUrl = "http://gank.io/api/data/";
+    private static final String baseUrl = "http://www.gank.io/api/data/";
+    private static final String TAG = "Comfragment";
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private comAdapter adapter;
@@ -53,7 +54,6 @@ public class comFragment extends Fragment implements SwipeRefreshLayout.OnRefres
     private boolean isLoadData = false;
 
     public comFragment(String type) {
-        super();
         this.type = type;
     }
 
@@ -81,6 +81,7 @@ public class comFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                 int lastVisiableItem = layoutManager.findLastVisibleItemPosition();
                 if (lastVisiableItem + 1 == adapter.getItemCount()) {
                     // TODO: 2017/7/7
+                    Log.d(TAG, "onScrolled: page"+page);
                     page++;
                     downLoadImg(page);
                 }
@@ -144,7 +145,7 @@ public class comFragment extends Fragment implements SwipeRefreshLayout.OnRefres
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        Log.d(type, "onResponse: " + jsonObject.toString());
+                        Log.d("onResponse", "onResponse: "+jsonObject.toString());
                         Api api = new Gson().fromJson(jsonObject.toString(), Api.class);
                         resutls.addAll(api.getResults());
                         adapter.refresh(resutls);

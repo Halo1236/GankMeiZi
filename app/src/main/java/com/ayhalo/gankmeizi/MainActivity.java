@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         HomePagerAdapter homePagerAdapter = new HomePagerAdapter(getSupportFragmentManager());
         homePagerAdapter.addTab(new comFragment("Android"),"Android");
         homePagerAdapter.addTab(new comFragment("iOS"),"iOS");
+        homePagerAdapter.addTab(new comFragment("前端"),"前端");
         homePagerAdapter.addTab(new mzFragment(),"MeiZi");
         viewPager.setAdapter(homePagerAdapter);
         tabLayout.setupWithViewPager(viewPager);

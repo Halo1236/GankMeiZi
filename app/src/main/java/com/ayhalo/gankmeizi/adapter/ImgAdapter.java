@@ -24,9 +24,9 @@ public class ImgAdapter extends RecyclerView.Adapter<ImgAdapter.ImgHolder> {
     private LayoutInflater inflater;
     private int resourceID;
     private Context context;
-    private List<MeiZi.ResultsBean> img;
+    private List<MeiZi> img;
 
-    public ImgAdapter(Context context, int resourceID,List<MeiZi.ResultsBean> images) {
+    public ImgAdapter(Context context, int resourceID,List<MeiZi> images) {
         this.context = context;
         this.img = images;
         this.resourceID = resourceID;
@@ -42,7 +42,7 @@ public class ImgAdapter extends RecyclerView.Adapter<ImgAdapter.ImgHolder> {
     @Override
     public void onBindViewHolder(final ImgHolder holder, int position) {
         if (holder != null){
-            MeiZi.ResultsBean resultsBean = img.get(position);
+            MeiZi resultsBean = img.get(position);
             Glide.with(context)
                     .load(resultsBean.getUrl())
                     .placeholder(R.mipmap.ic_launcher_round)
@@ -51,7 +51,7 @@ public class ImgAdapter extends RecyclerView.Adapter<ImgAdapter.ImgHolder> {
     }
 
 
-    public void refresh(List<MeiZi.ResultsBean> list) {
+    public void refresh(List<MeiZi> list) {
         this.img = list;
     }
 

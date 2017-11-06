@@ -33,6 +33,7 @@ public class Api {
         this.results = results;
     }
 
+
     public static class ResultsBean {
         /**
          * _id : 595df22b421aa90ca3bb6ab4

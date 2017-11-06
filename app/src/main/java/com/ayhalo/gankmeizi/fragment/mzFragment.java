@@ -17,13 +17,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.ayhalo.gankmeizi.BaseApplication;
 import com.ayhalo.gankmeizi.R;
 import com.ayhalo.gankmeizi.adapter.ImgAdapter;
 import com.ayhalo.gankmeizi.bean.MeiZi;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,9 +43,8 @@ public class mzFragment extends Fragment implements SwipeRefreshLayout.OnRefresh
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImgAdapter adapter;
-    private List<MeiZi.ResultsBean> resutls = new ArrayList<>();
+    private List<MeiZi> resutls = new ArrayList<>();
     private RequestQueue mQueue;
-    private MeiZi meizi;
     private static int page = 1;
     //控件是否已经初始化
     private boolean isCreateView = false;
@@ -55,7 +58,7 @@ public class mzFragment extends Fragment implements SwipeRefreshLayout.OnRefresh
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(this);
-        //LinearLayoutManager layoutManager =new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        //final LinearLayoutManager layoutManager =new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         //mRecyclerView.setLayoutManager(layoutManager);
 
         final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -74,11 +77,20 @@ public class mzFragment extends Fragment implements SwipeRefreshLayout.OnRefresh
                 int[] lastVisiableItem = staggeredGridLayoutManager.findLastVisibleItemPositions(null);
                 Log.d(TAG, "onScrolled: " + lastVisiableItem[lastVisiableItem.length - 1]);
                 Log.d(TAG, "getItemCount: " + adapter.getItemCount());
-                if (lastVisiableItem[lastVisiableItem.length - 1] + 1 == adapter.getItemCount()) {
-                    // TODO: 2017/7/7
+                Log.d(TAG, "page: "+page);
+                if (lastVisiableItem[lastVisiableItem.length - 1] + 2 == adapter.getItemCount()) {
+                   // TODO: 2017/7/7
                     page++;
                     downLoadImg(page);
                 }
+//                int lastVisiableItem = layoutManager.findLastVisibleItemPosition();
+//                Log.d(TAG, "onScrolled: " + lastVisiableItem);
+//                Log.d(TAG, "getItemCount: " + adapter.getItemCount());
+//                if (lastVisiableItem + 1 == adapter.getItemCount()) {
+//                    // TODO: 2017/7/7
+//                    page++;
+//                    downLoadImg(page);
+//                }
             }
         });
         isCreateView = true;
@@ -124,11 +136,23 @@ public class mzFragment extends Fragment implements SwipeRefreshLayout.OnRefresh
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
-                        Log.d(TAG, "onResponse: " + jsonObject.toString());
-                        meizi = new Gson().fromJson(jsonObject.toString(), MeiZi.class);
-                        resutls.addAll(meizi.getResults());
-                        adapter.refresh(resutls);
-                        adapter.notifyDataSetChanged();
+                        try {
+                            Log.d(TAG, "onResponse: " + jsonObject.getJSONArray("results").toString());
+                            //todo TypeToken
+                            String jsonArray = jsonObject.getJSONArray("results").toString();
+                            Type type = new TypeToken<ArrayList<MeiZi>>(){}.getType();
+                            List<MeiZi> tmp = new Gson().fromJson(jsonArray, type);
+                            resutls.addAll(tmp);
+                            adapter.refresh(resutls);
+                            adapter.notifyDataSetChanged();
+                            for (MeiZi data : tmp){
+                                BaseApplication.getDaoSession().insert(data);
+                            }
+                            tmp.clear();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override
